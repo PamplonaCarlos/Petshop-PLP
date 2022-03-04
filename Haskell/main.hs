@@ -1,5 +1,5 @@
 import System.Exit (exitSuccess)
-import System.Directory ( doesFileExist, removeFile )
+import System.Directory ( doesFileExist )
 import System.IO
     ( IO,
       getLine,
@@ -50,16 +50,49 @@ menuAdm :: IO()
 menuAdm = do
     putStrLn "\nSelecione uma das opções abaixo:"
     putStrLn "1 - Ver usuários cadastrados no sistema"
-    putStrLn "2 - Remover usuários"
+    putStrLn "2 - Alterar disponibilidade do hotelzinho"
+    putStrLn "3 - Listar resumo de atendimentos"
+    putStrLn "4 - Atualizar contatos do administrador"
 
     opcao <- getLine
     opcaoAdm opcao
 
+
 opcaoAdm :: String -> IO()
 opcaoAdm x
     | x == "1" = verClientesCadastrados
-    | x == "2" = removerCliente
+    | x == "2" = alterarDisponibilidadeHotelzinho
+    -- | x == "3" = listarResumoDeAtendimentos
+    -- | x == "4" = atualizarContatoAdm
     | otherwise = invalidOption menuAdm
+
+
+alterarDisponibilidadeHotelzinho :: IO ()
+alterarDisponibilidadeHotelzinho = do
+    putStrLn "\nSelecione qual a disponibilidade do hotelzinho neste momento:"
+    putStrLn "1 - Hotelzinho está disponível"
+    putStrLn "2 - Hotelzinho NÃO está disponível"
+
+    opcao <- getLine
+    opcaoHotelzinho opcao
+
+opcaoHotelzinho:: String -> IO()
+opcaoHotelzinho x
+    | x == "1" = ativaHotelzinho
+    | x == "2" = desativaHotelzinho
+    | otherwise = invalidOption alterarDisponibilidadeHotelzinho
+
+ativaHotelzinho:: IO()
+ativaHotelzinho = do
+    file <- openFile "hotelzinho.txt" WriteMode
+    hPutStr file "disponível"
+    hClose file
+
+desativaHotelzinho:: IO()
+desativaHotelzinho = do
+    file <- openFile "hotelzinho.txt" WriteMode
+    hPutStr file "indisponível"
+    hClose file
 
 
 menuCliente :: IO()
@@ -119,38 +152,21 @@ verClientesCadastrados = do
     file <- openFile "clientesCadastrados.txt" ReadMode
     contents <- hGetContents file
     print (show contents)
-
-removerCliente:: IO()
-removerCliente = do 
-    putStrLn "\nInsira o email do cliente a ser removido:"
-    email <- getLine
-    fileExists <- doesFileExist ("./clientes/" ++ email ++ ".txt")
-    if not fileExists then do
-        putStrLn ("\nCliente com email: '" ++ email ++ "' não existe!")
-    else do
-        removeFile ("./clientes/" ++ email ++ ".txt")
-        putStrLn ("\nCliente com email: '" ++ email ++ "' removido com sucesso!")
-    showMenu
     
 
 cadastrarComoCliente :: IO()
 cadastrarComoCliente = do
     putStrLn "\nInsira seu email:"
     email <- getLine
-    fileExists <- doesFileExist ("./clientes/" ++ email ++ ".txt")
+    fileExists <- doesFileExist (email ++ ".txt")
     if fileExists
         then do
             putStrLn "Usuario ja existente"
             showMenu
         else do
-            file <- openFile ("./clientes/" ++ email ++ ".txt") WriteMode
-            clientesCadastrados <- doesFileExist "clientesCadastrados.txt"
-            if not clientesCadastrados then do
-                fileClientesCadastrados <- openFile "clientesCadastrados.txt" WriteMode;
-                hPutStr fileClientesCadastrados email
-                hFlush fileClientesCadastrados
-                hClose fileClientesCadastrados
-            else appendFile "clientesCadastrados.txt" ("\n" ++ email)
+            file <- openFile (email ++ ".txt") WriteMode
+            fileClientesCadastrados <- appendFile "clientesCadastrados.txt" email
+            fileClientesCadastrados <- appendFile "clientesCadastrados.txt" " "
 
             putStrLn "\nInsira sua senha:"
             senha <- getLine
