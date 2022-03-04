@@ -63,7 +63,7 @@ opcaoAdm x
     | x == "1" = verClientesCadastrados
     | x == "2" = alterarDisponibilidadeHotelzinho
     -- | x == "3" = listarResumoDeAtendimentos
-    -- | x == "4" = atualizarContatoAdm
+    | x == "4" = atualizarContatoAdm
     | otherwise = invalidOption menuAdm
 
 
@@ -93,6 +93,29 @@ desativaHotelzinho = do
     file <- openFile "hotelzinho.txt" WriteMode
     hPutStr file "indisponível"
     hClose file
+
+
+atualizarContatoAdm:: IO()
+atualizarContatoAdm = do
+    putStrLn "\nTem certeza que deseja atualizar o contato do Administrador?"
+    putStrLn "\n--Aperte 1 para continuar--"
+    opcao <- getLine
+    opcaoContato opcao
+
+opcaoContato:: String -> IO()
+opcaoContato x
+    | x == "1" = mudaContato
+    | otherwise = invalidOption menuAdm
+
+mudaContato :: IO()
+mudaContato = do
+    putStrLn "\nInsira o novo número para contato abaixo"
+
+    numero <- getLine
+    file <- openFile "animais.txt" WriteMode
+    hPutStr file numero
+    hClose file
+    menuAdm
 
 
 menuCliente :: IO()
